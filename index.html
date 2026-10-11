@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora TACF 2026 - NSCA 54-3</title>
+    <style>
+        :root {
+            --primary: #003366;
+            --primary-dark: #002244;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            margin: 5px 0;
+            font-size: 1.5rem;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .result-card {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .status-apto { background-color: var(--success); }
+        .status-nao-apto { background-color: var(--danger); }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #ccc;
+            font-size: 0.95rem;
+        }
+
+        .total-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 15px;
+            color: var(--primary);
+        }
+
+        .alert-box {
+            padding: 10px;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>📱 Calculadora TACF 2026 📱</h1>
+        <p>Atualizada conforme NSCA 54-3 (2026)</p>
+    </div>
+
+    <form id="tacfForm">
+        <div class="row">
+            <div class="form-group">
+                <label for="sexo">Sexo</label>
+                <select id="sexo" required>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="idade">Idade (Anos)</label>
+                <input type="number" id="idade" min="17" max="80" placeholder="Ex: 28" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="estatura">Estatura (cm)</label>
+            <input type="number" id="estatura" min="120" max="220" placeholder="Ex: 175" required>
+        </div>
+
+        <div class="form-group">
+            <label for="cintura">Circunferência da Cintura (cm)</label>
+            <input type="number" step="0.5" id="cintura" placeholder="Ex: 84.5" required>
+        </div>
+
+        <div class="form-group">
+            <label for="flexao">Flexão de Braços (Repetições)</label>
+            <input type="number" id="flexao" placeholder="Ex: 32" required>
+            <small style="color:#666; font-size:0.75rem;">*Feminino: Sem apoio dos joelhos (NSCA 54-3/2026).</small>
+        </div>
+
+        <div class="form-group">
+            <label for="abdominal">Flexão do Tronco / Abdominal (Repetições)</label>
+            <input type="number" id="abdominal" placeholder="Ex: 42" required>
+        </div>
+
+        <div class="form-group">
+            <label for="corrida">Corrida de 12 Minutos (Metros)</label>
+            <input type="number" id="corrida" step="10" placeholder="Ex: 2450" required>
+        </div>
+
+        <button type="button" onclick="calcularTACF()">Calcular Nota</button>
+    </form>
+
+    <div id="resultado" class="result-card">
+        <div style="text-align: center;">
+            <div id="statusBadge" class="status-badge">APTO</div>
+        </div>
+        
+        <div class="score-row">
+            <span>Composição Corporal (Cintura):</span>
+            <strong id="ptsCintura">0.0 pts</strong>
+        </div>
+        <div class="score-row">
+            <span>Flexão de Braços:</span>
+            <strong id="ptsFlexao">0.0 pts</strong>
+        </div>
+        <div class="score-row">
+            <span>Abdominal:</span>
+            <strong id="ptsAbdominal">0.0 pts</strong>
+        </div>
+        <div class="score-row">
+            <span>Corrida 12 min:</span>
+            <strong id="ptsCorrida">0.0 pts</strong>
+        </div>
+
+        <div class="total-score">
+            Grau Final: <span id="grauFinal">0.0</span> / 100
+        </div>
+        <div style="text-align: right; font-size: 0.9rem; color: #555;">
+            Conceituação Global: <strong id="conceitoGlobal">-</strong>
+        </div>
+
+        <div id="reprovacaoAlert" class="alert-box" style="display:none;">
+            <strong>Atenção:</strong> Desempenho "Insatisfatório" em um ou mais testes individuais (Art. 30 da NSCA 54-3).
+        </div>
+    </div>
+</div>
+
+<script>
+function calcularPontosCintura(sexo, estatura, cintura) {
+    if (sexo === 'M') {
+        if (cintura >= 99.0) return 0.0;
+        if (cintura <= 86.5) return 30.0;
+        if (cintura >= 98.5) return 6.0;
+        let pts = 30.0 - ((cintura - 86.5) / (98.5 - 86.5)) * 24.0;
+        return Math.max(6.0, Math.min(30.0, pts));
+    } else {
+        if (cintura >= 90.0) return 0.0;
+        if (cintura <= 78.5) return 30.0;
+        if (cintura >= 89.5) return 6.0;
+        let pts = 30.0 - ((cintura - 78.5) / (89.5 - 78.5)) * 24.0;
+        return Math.max(6.0, Math.min(30.0, pts));
+    }
+}
+
+function calcularPontosFlexao(sexo, idade, rep) {
+    if (sexo === 'M') {
+        let minRep = (idade <= 20) ? 25 : (idade <= 30) ? 22 : (idade <= 34) ? 20 : (idade <= 38) ? 17 : (idade <= 41) ? 15 : (idade <= 43) ? 14 : (idade <= 49) ? 13 : 11;
+        let maxRep = 60;
+        if (rep < minRep) return 0.0;
+        if (rep >= maxRep) return 10.0;
+        let pts = 2.0 + ((rep - minRep) / (maxRep - minRep)) * 8.0;
+        return Math.max(2.0, Math.min(10.0, pts));
+    } else {
+        let minRepF = (idade <= 21) ? 11 : (idade <= 25) ? 12 : (idade <= 29) ? 11 : (idade <= 33) ? 10 : (idade <= 37) ? 9 : (idade <= 41) ? 8 : (idade <= 45) ? 7 : (idade <= 49) ? 6 : 5;
+        let maxRepF = 26;
+        if (rep < minRepF) return 0.0;
+        if (rep >= maxRepF) return 10.0;
+        let pts = 2.0 + ((rep - minRepF) / (maxRepF - minRepF)) * 8.0;
+        return Math.max(2.0, Math.min(10.0, pts));
+    }
+}
+
+function calcularPontosAbdominal(sexo, idade, rep) {
+    if (sexo === 'M') {
+        let minAbm = (idade <= 27) ? 37 : (idade <= 30) ? 35 : (idade <= 33) ? 32 : (idade <= 35) ? 31 : (idade <= 38) ? 30 : (idade <= 41) ? 27 : (idade <= 44) ? 25 : (idade <= 50) ? 22 : 20;
+        let maxAbm = 62;
+        if (rep < minAbm) return 0.0;
+        if (rep >= maxAbm) return 10.0;
+        let pts = 2.0 + ((rep - minAbm) / (maxAbm - minAbm)) * 8.0;
+        return Math.max(2.0, Math.min(10.0, pts));
+    } else {
+        let minAbmF = (idade <= 23) ? 30 : (idade <= 25) ? 29 : (idade <= 28) ? 27 : (idade <= 30) ? 25 : (idade <= 34) ? 21 : (idade <= 38) ? 20 : (idade <= 41) ? 17 : (idade <= 45) ? 15 : (idade <= 49) ? 12 : 11;
+        let maxAbmF = 62;
+        if (rep < minAbmF) return 0.0;
+        if (rep >= maxAbmF) return 10.0;
+        let pts = 2.0 + ((rep - minAbmF) / (maxAbmF - minAbmF)) * 8.0;
+        return Math.max(2.0, Math.min(10.0, pts));
+    }
+}
+
+function calcularPontosCorrida(sexo, idade, dist) {
+    if (sexo === 'M') {
+        let minCor = (idade <= 29) ? 2130 : (idade <= 31) ? 2080 : (idade <= 35) ? 2050 : (idade <= 38) ? 2010 : (idade <= 41) ? 2000 : (idade <= 43) ? 1960 : (idade <= 47) ? 1910 : 1890;
+        let maxCor = 3050;
+        if (dist < minCor) return 0.0;
+        if (dist >= maxCor) return 50.0;
+        let pts = 10.0 + ((dist - minCor) / (maxCor - minCor)) * 40.0;
+        return Math.max(10.0, Math.min(50.0, pts));
+    } else {
+        let minCorF = (idade <= 29) ? 1760 : (idade <= 33) ? 1690 : (idade <= 38) ? 1650 : (idade <= 44) ? 1600 : 1540;
+        let maxCorF = 2570;
+        if (dist < minCorF) return 0.0;
+        if (dist >= maxCorF) return 50.0;
+        let pts = 10.0 + ((dist - minCorF) / (maxCorF - minCorF)) * 40.0;
+        return Math.max(10.0, Math.min(50.0, pts));
+    }
+}
+
+function calcularTACF() {
+    const sexo = document.getElementById('sexo').value;
+    const idade = parseInt(document.getElementById('idade').value);
+    const estatura = parseFloat(document.getElementById('estatura').value);
+    const cintura = parseFloat(document.getElementById('cintura').value);
+    const flexao = parseInt(document.getElementById('flexao').value);
+    const abdominal = parseInt(document.getElementById('abdominal').value);
+    const corrida = parseInt(document.getElementById('corrida').value);
+
+    if (isNaN(idade) || isNaN(estatura) || isNaN(cintura) || isNaN(flexao) || isNaN(abdominal) || isNaN(corrida)) {
+        alert("Por favor, preencha todos os campos corretamente.");
+        return;
+    }
+
+    const pCintura = calcularPontosCintura(sexo, estatura, cintura);
+    const pFlexao = calcularPontosFlexao(sexo, idade, flexao);
+    const pAbdominal = calcularPontosAbdominal(sexo, idade, abdominal);
+    const pCorrida = calcularPontosCorrida(sexo, idade, corrida);
+
+    const grauFinal = pCintura + pFlexao + pAbdominal + pCorrida;
+
+    const zerouTeste = (pCintura === 0 || pFlexao === 0 || pAbdominal === 0 || pCorrida === 0);
+    const apto = (grauFinal >= 20.0) && !zerouTeste;
+
+    let conceito = "";
+    if (grauFinal >= 90.0) conceito = "Excelente (E)";
+    else if (grauFinal >= 70.0) conceito = "Muito Bom (MB)";
+    else if (grauFinal >= 40.0) conceito = "Bom (B)";
+    else if (grauFinal >= 20.0) conceito = "Satisfatório (S)";
+    else conceito = "Insatisfatório (I)";
+
+    document.getElementById('ptsCintura').innerText = pCintura.toFixed(1) + " pts";
+    document.getElementById('ptsFlexao').innerText = pFlexao.toFixed(1) + " pts";
+    document.getElementById('ptsAbdominal').innerText = pAbdominal.toFixed(1) + " pts";
+    document.getElementById('ptsCorrida').innerText = pCorrida.toFixed(1) + " pts";
+    document.getElementById('grauFinal').innerText = grauFinal.toFixed(1);
+    document.getElementById('conceitoGlobal').innerText = conceito;
+
+    const statusBadge = document.getElementById('statusBadge');
+    if (apto) {
+        statusBadge.innerText = "APTO";
+        statusBadge.className = "status-badge status-apto";
+        document.getElementById('reprovacaoAlert').style.display = "none";
+    } else {
+        statusBadge.innerText = "NÃO APTO";
+        statusBadge.className = "status-badge status-nao-apto";
+        if (zerouTeste) {
+            document.getElementById('reprovacaoAlert').style.display = "block";
+        } else {
+            document.getElementById('reprovacaoAlert').style.display = "none";
+        }
+    }
+
+    document.getElementById('resultado').style.display = "block";
+}
+</script>
+
+</body>
+</html>
